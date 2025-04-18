@@ -16,7 +16,7 @@ const courseSchema = new mongoose.Schema(
       minLength: [10, "Description must be at least 10 characters"],
       maxLength: [1000, "Description cannot exceed 1000 characters"],
     },
-    thumbnail: {
+    image: {
       type: String,
       trim: true,
       match: [/^$|\.(jpg|jpeg|png|gif)$/, "Thumbnail must be a valid image URL"],
@@ -41,11 +41,16 @@ const courseSchema = new mongoose.Schema(
       enum: ["DRAFT", "PENDING", "APPROVED", "REJECTED"],
       default: "DRAFT",
     },
+    completionStatus: {
+      type: String,
+      enum: ["COMPLETED", "INCOMPLETE", "BANNED"],
+      default: "INCOMPLETE",
+    },
     shortIntroVideo: {
       type: String,
       trim: true,
       match: [/^$|\.(mp4|webm|ogg)$/, "Short intro video must be a valid video URL (mp4, webm, ogg)"],
-    },
+    }
   },
   { timestamps: true }
 );
