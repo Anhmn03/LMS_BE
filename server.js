@@ -6,6 +6,10 @@ const path = require("path");
 const bodyParser = require("body-parser");
 const usersRouter = require("./routers/usersRouter");
 const userModel = require("./models/user.model");
+const courseRouter = require("./routers/courseRouter");
+const categoryModel = require("./models/category.model");
+const lessonModel = require("./models/lesson.model");
+
 dotenv.config();
 connectDB();
 
@@ -21,6 +25,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 // app.use(express.static("public"));
 
 app.use("/api/users", usersRouter);
+app.use("/api/courses", courseRouter);
 
 app.use("/api/all",async (req, res) => {
     try {
