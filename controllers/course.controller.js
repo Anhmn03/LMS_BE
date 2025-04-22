@@ -1,47 +1,40 @@
 // controllers/course.controller.js
 const Course = require("../models/course.model");
 const Category = require("../models/category.model");
-const User = require("../models/user.model");
 const mongoose = require("mongoose");
 
 exports.createCourse = async (req, res) => {
   try {
-    const { title, description, image, categoryId, price, shortIntroVideo } =
-      req.body;
-    const teacherId = req.user.id; // Assuming user ID is available from authentication
+    const {
+      title,
+      description,
+      image,
+      categoryId,
+      price,
+      shortIntroVideo,
+      teacherId,
+    } = req.body;
 
-    // Validate teacher exists and has teacher role
-    const teacher = await User.findById(teacherId).populate("role");
-    if (!teacher) {
-      return res
-        .status(404)
-        .json({ success: false, message: "Teacher not found" });
-    }
-
-    if (teacher.role.name !== "teacher") {
-      return res
-        .status(403)
-        .json({ success: false, message: "Only teachers can create courses" });
-    }
-
-    // Validate category exists
+    // Không cần kiểm tra user role, chỉ kiểm tra category
     const categoryExists = await Category.findById(categoryId);
     if (!categoryExists) {
       return res
         .status(404)
         .json({ success: false, message: "Category not found" });
     }
-
+console.log("Finding category with ID:", categoryId);
+const loglog = await Category.findById(categoryId);
+console.log("Category found:", loglog);
     // Create new course
     const newCourse = await Course.create({
       title,
       description,
       image,
-      teacherId,
+      teacherId, // Lấy teacherId từ body request thay vì từ user đăng nhập
       categoryId,
       price,
       shortIntroVideo,
-      status: "PENDING", // Set initial status as PENDING for admin approval
+      status: "PENDING", // Vẫn giữ quy trình phê duyệt
       completionStatus: "INCOMPLETE",
     });
 
@@ -67,12 +60,10 @@ exports.createCourse = async (req, res) => {
   }
 };
 
-exports.getTeacherCourses = async (req, res) => {
+exports.getAllCourses = async (req, res) => {
   try {
-    const teacherId = req.user.id; // Assuming user ID is available from authentication
-
-    // Get all courses for the teacher
-    const courses = await Course.find({ teacherId })
+    // Lấy tất cả khóa học thay vì lọc theo teacherId
+    const courses = await Course.find()
       .populate("categoryId", "name")
       .sort({ createdAt: -1 });
 
@@ -93,7 +84,6 @@ exports.getTeacherCourses = async (req, res) => {
 exports.getCourseById = async (req, res) => {
   try {
     const courseId = req.params.id;
-    const teacherId = req.user.id; // Assuming user ID is available from authentication
 
     // Validate course ID format
     if (!mongoose.Types.ObjectId.isValid(courseId)) {
@@ -103,7 +93,7 @@ exports.getCourseById = async (req, res) => {
       });
     }
 
-    // Get course and check if it belongs to the teacher
+    // Get course without checking ownership
     const course = await Course.findById(courseId).populate(
       "categoryId",
       "name"
@@ -113,14 +103,6 @@ exports.getCourseById = async (req, res) => {
       return res.status(404).json({
         success: false,
         message: "Course not found",
-      });
-    }
-
-    // Check if course belongs to the requesting teacher
-    if (course.teacherId.toString() !== teacherId) {
-      return res.status(403).json({
-        success: false,
-        message: "You are not authorized to access this course",
       });
     }
 
@@ -140,9 +122,15 @@ exports.getCourseById = async (req, res) => {
 exports.updateCourse = async (req, res) => {
   try {
     const courseId = req.params.id;
-    const teacherId = req.user.id; // Assuming user ID is available from authentication
-    const { title, description, image, categoryId, price, shortIntroVideo } =
-      req.body;
+    const {
+      title,
+      description,
+      image,
+      categoryId,
+      price,
+      shortIntroVideo,
+      teacherId,
+    } = req.body;
 
     // Validate course ID format
     if (!mongoose.Types.ObjectId.isValid(courseId)) {
@@ -152,21 +140,13 @@ exports.updateCourse = async (req, res) => {
       });
     }
 
-    // Check if course exists and belongs to the teacher
+    // Check if course exists
     let course = await Course.findById(courseId);
 
     if (!course) {
       return res.status(404).json({
         success: false,
         message: "Course not found",
-      });
-    }
-
-    // Check if course belongs to the requesting teacher
-    if (course.teacherId.toString() !== teacherId) {
-      return res.status(403).json({
-        success: false,
-        message: "You are not authorized to update this course",
       });
     }
 
@@ -197,7 +177,8 @@ exports.updateCourse = async (req, res) => {
         title,
         description,
         image,
-        categoryId,
+        teacherId: teacherId || course.teacherId, // Cho phép cập nhật teacherId
+        categoryId: categoryId || course.categoryId,
         price,
         shortIntroVideo,
         status: "PENDING", // Set status back to PENDING after update
@@ -231,7 +212,6 @@ exports.updateCourse = async (req, res) => {
 exports.deleteCourse = async (req, res) => {
   try {
     const courseId = req.params.id;
-    const teacherId = req.user.id; // Assuming user ID is available from authentication
 
     // Validate course ID format
     if (!mongoose.Types.ObjectId.isValid(courseId)) {
@@ -248,14 +228,6 @@ exports.deleteCourse = async (req, res) => {
       return res.status(404).json({
         success: false,
         message: "Course not found",
-      });
-    }
-
-    // Check if course belongs to the requesting teacher
-    if (course.teacherId.toString() !== teacherId) {
-      return res.status(403).json({
-        success: false,
-        message: "You are not authorized to delete this course",
       });
     }
 
