@@ -5,12 +5,7 @@ const connectDB = require("./config/db");
 const path = require("path");
 const bodyParser = require("body-parser");
 const usersRouter = require("./routers/usersRouter");
-const userModel = require("./models/user.model");
-const lessonRouter = require("./routers/lessonRouter");
-const courseRouter = require("./routers/courseRouter");
-const cartRouter = require("./routers/cartRouter");
-const enrollmentRouter = require("./routers/enrollmentRouter");
-const paymentRouter = require("./routers/paymentRouter");
+
 dotenv.config();
 connectDB();
 
@@ -26,6 +21,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 // app.use(express.static("public"));
 
 app.use("/api/users", usersRouter);
+app.use("/api/courses", courseRoutes);
 
 app.use("/api/all",async (req, res) => {
     try {
