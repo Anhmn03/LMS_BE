@@ -42,6 +42,16 @@ const userSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    specialization: {
+      type: String,
+      trim: true,
+      maxLength: [100, "Specialization cannot exceed 100 characters"],
+    },
+    expertise: {
+      type: String,
+      trim: true,
+      maxLength: [100, "Expertise cannot exceed 100 characters"],
+    },
   },
   { timestamps: true }
 );
