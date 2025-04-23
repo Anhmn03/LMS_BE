@@ -6,7 +6,7 @@ const { updateCourseStatus,
     updateCompletionStatus,
     getAllCourses,
     updateLessonStatus,
-    getStudentsInCourses,getEnrollmentsByStudentId } = require("../controllers/course.controller");
+    getStudentsInCourses,getEnrollmentsByStudentId } = require("../controllers/courseManager.controller");
 
 const router = express.Router();
 
