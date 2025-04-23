@@ -5,15 +5,14 @@ const connectDB = require("./config/db");
 const path = require("path");
 const bodyParser = require("body-parser");
 const usersRouter = require("./routers/usersRouter");
-const authRouter = require("./routers/authRouter");
-const userModel = require("./models/user.model");
+
 dotenv.config();
 connectDB();
 
 const app = express();
 // Xử lý CORS
 app.use(cors());
-
+app.post("/api/payments/webhook", express.raw({ type: "application/json" }), paymentRouter);
 // Xử lý JSON và form-data
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -21,15 +20,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 // app.use(express.static("public"));
 
 app.use("/api/users", usersRouter);
-app.use("/api/auth", authRouter);
-app.use("/api/all", async (req, res) => {
-  try {
-    const users = await userModel.find();
-    res.json(users);
-  } catch (error) {
-    res.status(500).json({ message: "Lỗi server, vui lòng thử lại!" });
-  }
-});
+
 const PORT = process.env.PORT || 9999;
 app.listen(PORT, () => {
   console.log(`🚀 Server chạy tại http://localhost:${PORT}`);
