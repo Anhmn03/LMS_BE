@@ -9,12 +9,26 @@ const userSchema = new mongoose.Schema(
       unique: true,
       trim: true,
       lowercase: true,
-      match: [/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/, "Invalid email format"],
+      match: [
+        /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
+        "Invalid email format",
+      ],
     },
     password: {
       type: String,
       required: [true, "Password is required"],
       minLength: [8, "Password must be at least 8 characters"],
+      select: false,
+    },
+    passwordConfirm: {
+      type: String,
+      required: [true, "Password confirmation is required"],
+      validate: {
+        validator: function (value) {
+          return value === this.password;
+        },
+        message: "Passwords do not match",
+      },
     },
     fullName: {
       type: String,
@@ -26,7 +40,10 @@ const userSchema = new mongoose.Schema(
     profilePicture: {
       type: String,
       trim: true,
-      match: [/^$|\.(jpg|jpeg|png|gif)$/, "Profile picture must be a valid image URL"],
+      match: [
+        /^$|\.(jpg|jpeg|png|gif)$/,
+        "Profile picture must be a valid image URL",
+      ],
     },
     role: {
       type: mongoose.Schema.Types.ObjectId,
@@ -61,10 +78,24 @@ userSchema.pre("save", async function (next) {
   try {
     const salt = await bcrypt.genSalt(10);
     this.password = await bcrypt.hash(this.password, salt);
+    this.passwordConfirm = undefined;
     next();
   } catch (error) {
     next(error);
   }
 });
+userSchema.methods.correctPassword = async function (
+  candidatePassword,
+  userPassword
+) {
+  return await bcrypt.compare(candidatePassword, userPassword);
+};
 
+userSchema.pre(/^find/, function (next) {
+  this.populate({
+    path: "role",
+    select: "name",
+  });
+  next();
+});
 module.exports = mongoose.model("User", userSchema);
