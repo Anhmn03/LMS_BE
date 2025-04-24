@@ -1,7 +1,8 @@
 const express = require("express");
 const { 
     createCheckoutSession,
-    stripeWebhook
+    stripeWebhook,
+    getPayments
 } = require("../controllers/payment.controllers");
 // const { isAuthenticated } = require("../middlewares/auth");
 
@@ -19,4 +20,6 @@ router.post("/webhook", stripeWebhook);
 
 // Route cho tạo session checkout – có thể dùng JSON
 router.post("/create-checkout-session", /*isAuthenticated,*/ createCheckoutSession);
+router.get("/",getPayments)
+
 module.exports = router; 

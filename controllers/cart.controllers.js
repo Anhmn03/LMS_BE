@@ -6,8 +6,8 @@ exports.addToCart = async (req, res) => {
     try {
         // Get courseId from request and studentId from authenticated user
         const { courseId } = req.body;
-        const studentId = req.user._id;
-        
+        //const studentId = req.user._id;
+        const studentId = "661a20000000000000000003"; // For testing
         const course = await Course.findById(courseId);
         if (!course) {
             return res.status(404).json({ 
@@ -55,8 +55,8 @@ exports.addToCart = async (req, res) => {
 exports.getCart = async (req, res) => {
     try {
         // Get studentId from authenticated user
-        const studentId = req.user._id;
-        
+        // const studentId = req.user._id;
+        const studentId = "661a20000000000000000003"; // For testing
 
         const cartItems = await  
 Cart.find({ studentId })
@@ -81,8 +81,8 @@ exports.removeFromCart = async (req, res) => {
     try {
         // Get courseId from params and studentId from authenticated user
         const { courseId } = req.params;
-        const studentId = req.user._id;
-        
+        // const studentId = req.user._id;
+        const studentId = "661a20000000000000000003"; // For testing
         
         const result = await Cart.findOneAndDelete({ studentId, courseId });
         

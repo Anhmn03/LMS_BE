@@ -4,8 +4,8 @@ const Payment = require("../models/payment.model");
 
 exports.enrollAfterPayment = async (req, res) => {
     const { courseId } = req.body;
-    const studentId = req.user._id; // Lấy ID từ JWT token
-    
+    // const studentId = req.user._id; // Lấy ID từ JWT token
+    const studentId = "661a20000000000000000003"; // For testing
     try {
         // Kiểm tra xem có thanh toán thành công không
         const payment = await Payment.findOne({
@@ -54,8 +54,8 @@ exports.enrollAfterPayment = async (req, res) => {
 // Lấy danh sách khóa học đã đăng ký
 exports.getEnrolledCourses = async (req, res) => {
     try {
-        const studentId = req.user._id;
-       
+        // const studentId = req.user._id;
+        const studentId = "661a20000000000000000003"; // For testing
         const enrollments = await Enrollment.find({ studentId })
             .populate({
                 path: 'courseId',
