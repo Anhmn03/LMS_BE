@@ -1,10 +1,10 @@
 const express = require("express");
-const { 
-    createCheckoutSession,
-    stripeWebhook
+const {
+  createCheckoutSession,
+  stripeWebhook,
 } = require("../controllers/payment.controllers");
 // const { isAuthenticated } = require("../middlewares/auth");
-
+const { protect, restrictTo } = require("../controllers/auth.controllers");
 const router = express.Router();
 
 // // Checkout session require authentication
@@ -18,5 +18,10 @@ const bodyParser = require("body-parser");
 router.post("/webhook", stripeWebhook);
 
 // Route cho tạo session checkout – có thể dùng JSON
-router.post("/create-checkout-session", /*isAuthenticated,*/ createCheckoutSession);
-module.exports = router; 
+router.post(
+  "/create-checkout-session",
+  protect,
+  restrictTo("student"),
+  /*isAuthenticated,*/ createCheckoutSession
+);
+module.exports = router;
