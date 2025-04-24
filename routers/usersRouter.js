@@ -7,11 +7,11 @@ const {
 } = require("../controllers/user.controllers");
 const { restrictTo, protect } = require("../controllers/auth.controllers");
 const router = express.Router();
-
 router.use(protect);
-router.get("/teachers", restrictTo("admin"), getTeachers);
-router.get("/students", getStudents);
 router.put("/update", updateMe);
+router.use(restrictTo("admin"));
+router.get("/teachers", getTeachers);
+router.get("/students", getStudents);
 router.get("/detail/:id",getUserById);
 router.post("/createTeacher",createTeacher);
 router.put("/updateStatus/:id",toggleUserStatus);

@@ -1,16 +1,16 @@
 const express = require("express");
-const { 
-    addToCart,
-    getCart,
-    removeFromCart
+const {
+  addToCart,
+  getCart,
+  removeFromCart,
 } = require("../controllers/cart.controllers");
 // const { isAuthenticated } = require("../middlewares/auth");
-
+const { protect, restrictTo } = require("../controllers/auth.controllers");
 const router = express.Router();
-
+router.use(protect, restrictTo("student"));
 // All cart routes need authentication
 router.post("/add", /*isAuthenticated,*/ addToCart);
 router.get("/", /*isAuthenticated,*/ getCart);
 router.delete("/:courseId", /*isAuthenticated,*/ removeFromCart);
 
-module.exports = router; 
+module.exports = router;

@@ -4,11 +4,11 @@ const router = express.Router();
 const courseController = require("../controllers/course.controller");
 const authMiddleware = require("../middleware/auth.middleware");
 const teacherMiddleware = require("../middleware/teacher.middleware");
-
+const { protect, restrictTo } = require("../controllers/auth.controllers");
 // Apply authentication and teacher role check to all routes
 // router.use(authMiddleware.protect);
 // router.use(teacherMiddleware.isTeacher);
-
+router.use(protect, restrictTo("teacher"));
 // Course routes
 router.post("/", courseController.createCourse);
 router.get("/all-courses", courseController.getAllCourses);
