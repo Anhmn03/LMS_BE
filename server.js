@@ -38,7 +38,7 @@ app.use("/api/coursesManager", courseManagerRouter);
 app.use("/api/courses", courseRoutes);
 app.use("/api/auth", authRouter);
 app.use("/api/lessons", lessonRouter);
-app.use("/api/courses", courseRouter);
+app.use("/api/courses1", courseRouter);
 app.use("/api/cart", cartRouter);
 app.use("/api/enrollments", enrollmentRouter);
 app.use("/api/payments", paymentRouter);
