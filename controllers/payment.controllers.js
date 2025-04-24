@@ -8,8 +8,8 @@ const Cart = require("../models/cart.model");
 exports.createCheckoutSession = async (req, res) => {
     try {
         const { courseId, cartItemIds } = req.body;
-        //const userId = req.user._id;
-        const userId = "661a20000000000000000003"; // For testing
+        const userId = req.user._id;
+        
         let lineItems = [];
         let metadata = {
             userId: userId
