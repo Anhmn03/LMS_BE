@@ -1,7 +1,9 @@
 const express = require("express");
-const {
-  createCheckoutSession,
-  stripeWebhook,
+
+const { 
+    createCheckoutSession,
+    stripeWebhook,
+    getPayments
 } = require("../controllers/payment.controllers");
 // const { isAuthenticated } = require("../middlewares/auth");
 const { protect, restrictTo } = require("../controllers/auth.controllers");
@@ -24,4 +26,6 @@ router.post(
   restrictTo("student"),
   /*isAuthenticated,*/ createCheckoutSession
 );
-module.exports = router;
+router.get("/",getPayments)
+
+module.exports = router; 
