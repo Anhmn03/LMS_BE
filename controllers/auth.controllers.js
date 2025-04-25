@@ -1,6 +1,9 @@
 const User = require("../models/user.model");
+const Role = require("../models/role.model");
 const jwt = require("jsonwebtoken");
 const { promisify } = require("node:util");
+const crypto = require("crypto");
+const Email = require("../utils/email");
 
 const signToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, {
@@ -22,10 +25,16 @@ const createSendToken = (user, statusCode, req, res) => {
 };
 const signup = async (req, res) => {
   try {
+    const studentRole = await Role.findOne({ name: "student" });
+    if (!studentRole)
+      return res.status(400).json({
+        status: "error",
+        message: "Role student not found!",
+      });
     const newUser = await User.create({
       fullName: req.body.fullName,
       email: req.body.email,
-      role: req.body.role,
+      role: studentRole._id,
       password: req.body.password,
       passwordConfirm: req.body.passwordConfirm,
     });
@@ -69,6 +78,66 @@ const restrictTo = (...roles) => {
     }
   };
 };
+
+const forgotPassword = async (req, res, next) => {
+  try {
+    const user = await User.findOne({ email: req.body.email });
+    if (!user) throw new Error("There is no user with email address");
+
+    const otp = user.createPasswordResetOtp();
+    await user.save({ validateBeforeSave: false });
+
+    //send email
+    try {
+      await new Email(user, otp).sendPasswordReset();
+
+      res.status(200).json({
+        status: "success",
+        message: "otp send to email!",
+      });
+    } catch (error) {
+      user.passwordResetOtp = undefined;
+      user.passwordResetExpires = undefined;
+      await user.save({ validateBeforeSave: false });
+      console.log(error);
+      throw new Error("There was an error sending the email. Try again later!");
+    }
+  } catch (error) {
+    res.status(500).json({
+      message: error.message,
+    });
+  }
+};
+
+const resetPassword = async (req, res, next) => {
+  try {
+    const hashedOtp = crypto
+      .createHash("sha256")
+      .update(req.params.otp)
+      .digest("hex");
+
+    const user = await User.findOne({
+      passwordResetOtp: hashedOtp,
+      passwordResetExpires: { $gt: Date.now() },
+    });
+
+    if (!user) {
+      throw new Error("Otp is invalid or has expired");
+    }
+    user.password = req.body.password;
+    user.passwordConfirm = req.body.passwordConfirm;
+    user.passwordResetOtp = undefined;
+    user.passwordResetExpires = undefined;
+    await user.save();
+
+    createSendToken(user, 200, req, res);
+  } catch (error) {
+    res.status(500).json({
+      message: error.message,
+    });
+  }
+};
+
 const protect = async (req, res, next) => {
   try {
     // 1) Getting token and check of it's there
@@ -121,4 +190,12 @@ const updatePassword = async (req, res, next) => {
   }
 };
 
-module.exports = { signup, login, restrictTo, protect, updatePassword };
+module.exports = {
+  signup,
+  login,
+  restrictTo,
+  protect,
+  updatePassword,
+  forgotPassword,
+  resetPassword,
+};
