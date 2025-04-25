@@ -8,7 +8,7 @@ const { protect, restrictTo } = require("../controllers/auth.controllers");
 // Apply authentication and teacher role check to all routes
 // router.use(authMiddleware.protect);
 // router.use(teacherMiddleware.isTeacher);
-router.use(protect, restrictTo("teacher"));
+router.use(protect, restrictTo("Teacher"));
 // Course routes
 router.post("/", courseController.createCourse);
 router.get("/all-courses", courseController.getAllCourses);

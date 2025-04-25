@@ -1,14 +1,20 @@
 const express = require("express");
 const {
-  getCourseRevenueStats,
-  getMostEnrolledCourses,
-  getUserStats,
-} = require("../controllers/statictis.controller");
-const { protect, restrictTo } = require("../controllers/auth.controllers");
+  getTeachers,
+  getStudents,
+  updateMe,
+   getUserById, createTeacher, toggleUserStatus, searchTeachers, searchStudents,
+} = require("../controllers/user.controllers");
+const { restrictTo, protect } = require("../controllers/auth.controllers");
 const router = express.Router();
-router.use(protect, restrictTo("admin"));
-router.get("/courses", getCourseRevenueStats);
-router.get("/enroll", getMostEnrolledCourses);
-router.get("/users", getUserStats);
-
+router.use(protect);
+router.put("/update", updateMe);
+router.use(restrictTo("Admin"));
+router.get("/teachers", getTeachers);
+router.get("/students", getStudents);
+router.get("/detail/:id",getUserById);
+router.post("/createTeacher",createTeacher);
+router.put("/updateStatus/:id",toggleUserStatus);
+router.get("/teachers/search",searchTeachers);
+router.get("/students/search",searchStudents);
 module.exports = router;

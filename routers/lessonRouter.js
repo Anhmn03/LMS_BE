@@ -8,7 +8,7 @@ const {
 // const { isAuthenticated } = require("../middlewares/auth"); // Assuming you have an auth middleware
 const { protect, restrictTo } = require("../controllers/auth.controllers");
 const router = express.Router();
-router.use(protect, restrictTo("student"));
+router.use(protect, restrictTo("Student"));
 
 // Public route - basic info
 router.get("/course/:courseId", GetLessonsByCourse);

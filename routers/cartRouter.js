@@ -7,7 +7,7 @@ const {
 // const { isAuthenticated } = require("../middlewares/auth");
 const { protect, restrictTo } = require("../controllers/auth.controllers");
 const router = express.Router();
-router.use(protect, restrictTo("student"));
+router.use(protect, restrictTo("Student"));
 // All cart routes need authentication
 router.post("/add", /*isAuthenticated,*/ addToCart);
 router.get("/", /*isAuthenticated,*/ getCart);

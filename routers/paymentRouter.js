@@ -23,9 +23,9 @@ router.post("/webhook", stripeWebhook);
 router.post(
   "/create-checkout-session",
   protect,
-  restrictTo("student"),
+  restrictTo("Student"),
   /*isAuthenticated,*/ createCheckoutSession
 );
-router.get("/", protect, restrictTo("admin"), getPayments);
+router.get("/", protect, restrictTo("Admin"), getPayments);
 
 module.exports = router;

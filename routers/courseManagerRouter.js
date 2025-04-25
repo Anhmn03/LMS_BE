@@ -16,25 +16,25 @@ router.use(protect);
 // Get All Courses (New Route)
 router.get("/", getAllCourses);
 // Get Students Enrolled in or Completed at Least One Course (New Route)
-router.get("/students", restrictTo("admin"), getStudentsInCourses);
+router.get("/students", restrictTo("Admin"), getStudentsInCourses);
 
 // Update Course Status Route
-router.put("/:id/status", restrictTo("admin"), updateCourseStatus);
+router.put("/:id/status", restrictTo("Admin"), updateCourseStatus);
 
 // List Courses by Status Routes
-router.get("/status/draft", restrictTo("admin"), getDraftCourses);
-router.get("/status/approved", restrictTo("admin"), getApprovedCourses);
+router.get("/status/draft", restrictTo("Admin"), getDraftCourses);
+router.get("/status/approved", restrictTo("Admin"), getApprovedCourses);
 // Update Completion Status Route (New)
 router.put(
   "/:id/completion-status",
-  restrictTo("admin", "teacher"),
+  restrictTo("Admin", "Teacher"),
   updateCompletionStatus
 );
-router.get("/status/rejected", restrictTo("admin"), getRejectedCourses);
+router.get("/status/rejected", restrictTo("Admin"), getRejectedCourses);
 
 router.get(
   "/:studentId/students",
-  restrictTo("admin"),
+  restrictTo("Admin"),
   getEnrollmentsByStudentId
 );
 

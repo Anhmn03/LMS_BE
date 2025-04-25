@@ -4,7 +4,7 @@ const { protect, restrictTo } = require("../controllers/auth.controllers");
 const router = express.Router();
 
 const bodyParser = require("body-parser");
-router.use(protect, restrictTo("admin"));
+router.use(protect, restrictTo("Admin"));
 
 router.get("/", getPayments);
 

@@ -13,6 +13,8 @@ const cartRouter = require("./routers/cartRouter");
 const enrollmentRouter = require("./routers/enrollmentRouter");
 const paymentRouter = require("./routers/paymentRouter");
 const lessonRouter = require("./routers/lessonRouter");
+const statictisRouter = require("./routers/statictisRouter");
+const categoryRouter = require("./routers/categoryRouter");
 
 require("./models/category.model");
 require("./models/course.model");
@@ -26,11 +28,7 @@ connectDB();
 const app = express();
 // Xử lý CORS
 app.use(cors());
-app.post(
-  "/api/payments/webhook",
-  express.raw({ type: "application/json" }),
-  paymentRouter
-);
+app.post("/api/payments/webhook", express.raw({ type: "application/json" }), paymentRouter);
 // Xử lý JSON và form-data
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -42,10 +40,12 @@ app.use("/api/coursesManager", courseManagerRouter);
 app.use("/api/courses", courseRoutes);
 app.use("/api/auth", authRouter);
 app.use("/api/lessons", lessonRouter);
-app.use("/api/courses1", courseRouter);
+app.use("/api/courses", courseRouter);
 app.use("/api/cart", cartRouter);
 app.use("/api/enrollments", enrollmentRouter);
 app.use("/api/payments", paymentRouter);
+app.use("/api/category", categoryRouter);
+app.use("/api/statictis", statictisRouter);
 
 const PORT = process.env.PORT || 9999;
 app.listen(PORT, () => {
