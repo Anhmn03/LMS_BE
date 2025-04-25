@@ -65,6 +65,48 @@ exports.getCourseRevenueStats = async (req, res) => {
     }
 };
 
+exports.getMonthlyRevenueStats = async (req, res) => {
+    try {
+        const { year } = req.query;
+        const targetYear = parseInt(year) || new Date().getFullYear();
+
+        const monthlyStats = Array.from({ length: 12 }, (_, i) => ({
+            month: new Date(0, i).toLocaleString('default', { month: 'long' }),
+            revenue: 0
+        }));
+
+        const startDate = new Date(targetYear, 0, 1);
+        const endDate = new Date(targetYear + 1, 0, 1); // exclusive
+
+        // Fetch tất cả payment có status = COMPLETED
+        const payments = await paymentModel.find({
+            status: 'COMPLETED',
+        }).select('amount paymentDate').lean();
+
+        // Lọc lại theo năm và convert paymentDate nếu cần
+        payments.forEach(payment => {
+            const paymentDate = new Date(payment.paymentDate); // Chuyển về kiểu Date
+            if (paymentDate >= startDate && paymentDate < endDate) {
+                const monthIndex = paymentDate.getMonth(); // 0-11
+                monthlyStats[monthIndex].revenue += payment.amount;
+            }
+        });
+
+        monthlyStats.forEach(stat => {
+            stat.revenue = parseFloat(stat.revenue.toFixed(2));
+        });
+
+        res.status(200).json({
+            year: targetYear,
+            monthlyRevenue: monthlyStats
+        });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+
+
 // Get most enrolled courses
 exports.getMostEnrolledCourses = async (req, res) => {
     try {
@@ -121,8 +163,8 @@ exports.getUserStats = async (req, res) => {
         const pageNum = parseInt(page);
         const limitNum = parseInt(limit);
 
-        const studentRole = await mongoose.model('Role').findOne({ name: 'student' }).select('_id').lean();
-        const teacherRole = await mongoose.model('Role').findOne({ name: 'teacher' }).select('_id').lean();
+        const studentRole = await mongoose.model('Role').findOne({ name: 'Student' }).select('_id').lean();
+        const teacherRole = await mongoose.model('Role').findOne({ name: 'Teacher' }).select('_id').lean();
 
         if (!studentRole || !teacherRole) {
             return res.status(500).json({ message: 'Role not found' });

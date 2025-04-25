@@ -1,6 +1,8 @@
 const mongoose = require("mongoose");
 const roleModel = require("../models/role.model");
 const userModel = require("../models/user.model");
+const courseModel = require("../models/course.model");
+import bcryptjs from "bcryptjs";
 
 // exports.getAllUsers = async (req, res) => {
 //     try {
@@ -57,18 +59,19 @@ const userModel = require("../models/user.model");
 // controllers/userController.js
 exports.getTeachers = async (req, res) => {
   try {
+    
     const { page = 1, limit = 10 } = req.query;
     const pageNum = parseInt(page);
     const limitNum = parseInt(limit);
 
     // Lấy vai trò teacher
-    const teacherRole = await Role.findOne({ name: "teacher" });
+    const teacherRole = await Role.findOne({ name: "Teacher" });
     if (!teacherRole) {
       return res.status(500).json({ message: "Teacher role not found" });
     }
 
     // Lấy danh sách giảng viên
-    const teachers = await User.find({ role: teacherRole._id })
+    const teachers = await userModel.find({ role: teacherRole._id })
       .select("email fullName role status isBanned createdAt")
       .populate("role", "name")
       .skip((pageNum - 1) * limitNum)
@@ -77,13 +80,13 @@ exports.getTeachers = async (req, res) => {
 
     // Tính tổng số khóa học cho mỗi giảng viên
     for (let teacher of teachers) {
-      teacher.totalCourses = await Course.countDocuments({
+      teacher.totalCourses = await courseModel.countDocuments({
         instructorId: teacher._id,
         status: "APPROVED",
       });
     }
 
-    const totalTeachers = await User.countDocuments({ role: teacherRole._id });
+    const totalTeachers = await userModel.countDocuments({ role: teacherRole._id });
 
     res.status(200).json({
       users: teachers,
@@ -102,7 +105,7 @@ exports.getStudents = async (req, res) => {
     const pageNum = parseInt(page);
     const limitNum = parseInt(limit);
 
-    const studentRole = await roleModel.findOne({ name: "STUDENT" });
+    const studentRole = await roleModel.findOne({ name: "Student" });
     if (!studentRole) {
       return res.status(500).json({ message: "Student role not found" });
     }
@@ -447,7 +450,7 @@ exports.searchTeachers = async (req, res) => {
         const limitNum = parseInt(limit);
 
         // Find TEACHER role
-        const teacherRole = await roleModel.findOne({ name: "TEACHER" });
+        const teacherRole = await roleModel.findOne({ name: "Teacher" });
         if (!teacherRole) {
             return res.status(500).json({ message: "Teacher role not found" });
         }
@@ -497,7 +500,7 @@ exports.searchStudents = async (req, res) => {
         const limitNum = parseInt(limit);
 
         // Find STUDENT role
-        const studentRole = await roleModel.findOne({ name: "STUDENT" });
+        const studentRole = await roleModel.findOne({ name: "Student" });
         if (!studentRole) {
             return res.status(500).json({ message: "Student role not found" });
         }

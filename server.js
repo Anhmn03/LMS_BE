@@ -13,6 +13,8 @@ const cartRouter = require("./routers/cartRouter");
 const enrollmentRouter = require("./routers/enrollmentRouter");
 const paymentRouter = require("./routers/paymentRouter");
 const lessonRouter = require("./routers/lessonRouter");
+const statictisRouter = require("./routers/statictisRouter");
+const categoryRouter = require("./routers/categoryRouter");
 
 require("./models/category.model");
 require("./models/course.model");
@@ -42,7 +44,8 @@ app.use("/api/courses", courseRouter);
 app.use("/api/cart", cartRouter);
 app.use("/api/enrollments", enrollmentRouter);
 app.use("/api/payments", paymentRouter);
-
+app.use("/api/category", categoryRouter);
+app.use("/api/statictis", statictisRouter);
 
 const PORT = process.env.PORT || 9999;
 app.listen(PORT, () => {
