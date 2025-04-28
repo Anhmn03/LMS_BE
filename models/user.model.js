@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
+const crypto = require("crypto");
 
 const userSchema = new mongoose.Schema(
   {
@@ -69,6 +70,8 @@ const userSchema = new mongoose.Schema(
       trim: true,
       maxLength: [100, "Expertise cannot exceed 100 characters"],
     },
+    passwordResetOtp: String,
+    passwordResetExpires: Date,
   },
   { timestamps: true }
 );
@@ -98,4 +101,14 @@ userSchema.pre(/^find/, function (next) {
   });
   next();
 });
+
+userSchema.methods.createPasswordResetOtp = function () {
+  const otp = Math.floor(100000 + Math.random() * 900000).toString();
+  this.passwordResetOtp = crypto.createHash("sha256").update(otp).digest("hex");
+
+  this.passwordResetExpires = Date.now() + 5 * 60 * 1000;
+
+  return otp;
+};
+
 module.exports = mongoose.model("User", userSchema);

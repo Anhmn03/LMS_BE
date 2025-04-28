@@ -2,7 +2,6 @@ const mongoose = require("mongoose");
 const roleModel = require("../models/role.model");
 const userModel = require("../models/user.model");
 const courseModel = require("../models/course.model");
-import bcryptjs from "bcryptjs";
 
 // exports.getAllUsers = async (req, res) => {
 //     try {
@@ -534,5 +533,110 @@ exports.searchStudents = async (req, res) => {
         });
     } catch (error) {
         res.status(500).json({ message: error.message });
+    }
+};
+
+exports.updateTeacher = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { fullName, specialization, expertise, profilePicture } = req.body;
+
+        // Validate teacher ID
+        if (!id || !mongoose.isValidObjectId(id)) {
+            return res.status(400).json({ message: "Invalid teacher ID" });
+        }
+        // Find teacher role
+        const teacherRole = await roleModel.findOne({ name: "Teacher" });
+        if (!teacherRole) {
+            return res.status(500).json({ message: "Teacher role not found" });
+        }
+
+        // Find teacher with role verification
+        const teacher = await userModel.findOne({
+            _id: id,
+            role: teacherRole._id,
+            isBanned: false,
+            status: "ACTIVE"
+        });
+
+        if (!teacher) {
+            return res.status(404).json({ 
+                message: "Teacher not found or account is inactive/banned" 
+            });
+        }
+
+        // Prepare update data with validation
+        const updateData = {};
+        if (fullName) {
+            const trimmedName = fullName.trim();
+            if (trimmedName.length < 2 || trimmedName.length > 50) {
+                return res.status(400).json({ 
+                    message: "Full name must be between 2 and 50 characters" 
+                });
+            }
+            updateData.fullName = trimmedName;
+        }
+
+        if (specialization) {
+            const trimmedSpec = specialization.trim();
+            if (trimmedSpec.length > 100) {
+                return res.status(400).json({ 
+                    message: "Specialization cannot exceed 100 characters" 
+                });
+            }
+            updateData.specialization = trimmedSpec;
+        }
+
+        if (expertise) {
+            const trimmedExp = expertise.trim();
+            if (trimmedExp.length > 100) {
+                return res.status(400).json({ 
+                    message: "Expertise cannot exceed 100 characters" 
+                });
+            }
+            updateData.expertise = trimmedExp;
+        }
+
+        if (profilePicture) {
+            const imageRegex = /\.(jpg|jpeg|png|gif)$/i;
+            if (profilePicture.trim() && !imageRegex.test(profilePicture)) {
+                return res.status(400).json({ 
+                    message: "Profile picture must be a valid image URL" 
+                });
+            }
+            updateData.profilePicture = profilePicture.trim();
+        }
+
+        // Only update if there are changes
+        if (Object.keys(updateData).length === 0) {
+            return res.status(400).json({ 
+                message: "No valid fields provided for update" 
+            });
+        }
+
+        updateData.updatedAt = new Date();
+
+        // Update teacher
+        const updatedTeacher = await userModel
+            .findByIdAndUpdate(id, { $set: updateData }, {
+                new: true,
+                runValidators: true
+            })
+            .select("email fullName specialization expertise profilePicture role status createdAt updatedAt")
+            .lean();
+
+        res.status(200).json({
+            message: "Teacher updated successfully",
+            user: {
+                ...updatedTeacher,
+                role: updatedTeacher.role.name
+            }
+        });
+    } catch (error) {
+        console.error("Error updating teacher:", error);
+        res.status(500).json({ 
+            message: "Internal server error",
+            error: error.message 
+        });
     }
 };

@@ -3,7 +3,7 @@ const {
   getTeachers,
   getStudents,
   updateMe,
-   getUserById, createTeacher, toggleUserStatus, searchTeachers, searchStudents,
+   getUserById, createTeacher, toggleUserStatus, searchTeachers, searchStudents,updateTeacher
 } = require("../controllers/user.controllers");
 const { restrictTo, protect } = require("../controllers/auth.controllers");
 const router = express.Router();
@@ -17,4 +17,5 @@ router.post("/createTeacher",createTeacher);
 router.put("/updateStatus/:id",toggleUserStatus);
 router.get("/teachers/search",searchTeachers);
 router.get("/students/search",searchStudents);
+router.put('/updateTeacher/:id', updateTeacher);
 module.exports = router;
